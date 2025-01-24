@@ -1,47 +1,62 @@
 package com.example.gymmanagement.service;
 
 import com.example.gymmanagement.dto.GymClassRequest;
+import com.example.gymmanagement.exception.InvalidDateRangeException;
+import com.example.gymmanagement.exception.InvalidGymClassException;
+import com.example.gymmanagement.model.GymClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class GymClassServiceTest {
+class GymClassServiceTest {
 
-    @Test
-    void testAddClass() {
-        GymClassService gymClassService = new GymClassService();
+    private GymClassService gymClassService;
 
-        GymClassRequest gymClass = new GymClassRequest();
-        gymClass.setName("Yoga");
-        gymClass.setStartDate(LocalDate.of(2025, 1, 1));
-        gymClass.setEndDate(LocalDate.of(2025, 1, 10));
-        gymClass.setStartTime(LocalTime.of(10, 0));
-        gymClass.setDuration(60);
-        gymClass.setCapacity(15);
-
-        gymClassService.createGymClass(gymClass);
-
-        assertEquals(1, gymClassService.getGymClasses().size());
-        assertEquals("Yoga", gymClassService.getGymClasses().get(0).getName());
+    @BeforeEach
+    void setUp() {
+        gymClassService = new GymClassService();
     }
 
     @Test
-    void testCreateClass_InvalidCapacity() {
-        GymClassService classService = new GymClassService();
-        GymClassRequest request = new GymClassRequest();
-        request.setName("Yoga");
-        request.setStartDate(LocalDate.of(2025, 1, 1));
-        request.setEndDate(LocalDate.of(2025, 1, 10));
-        request.setStartTime(LocalTime.of(14, 0));
-        request.setCapacity(0);
-        request.setDuration(60);
+    void shouldCreateGymClassSuccessfully() {
+        GymClassRequest request = new GymClassRequest("Yoga", LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(1,0), 20, 1);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> classService.createGymClass(request));
-        assertEquals("Gym class must be booked by at least 1 person.", exception.getMessage());
+        gymClassService.createGymClass(request);
+        List<GymClass> gymClasses = gymClassService.getGymClasses();
+
+        assertEquals(1, gymClasses.size());
+        assertEquals("Yoga", gymClasses.get(0).getName());
     }
 
+    @Test
+    void shouldThrowExceptionForInvalidCapacity() {
+        GymClassRequest request = new GymClassRequest("Yoga", LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(1,10), 0, 0);
+
+        assertThrows(InvalidGymClassException.class, () -> gymClassService.createGymClass(request));
+    }
+
+    @Test
+    void shouldThrowExceptionForInvalidDateRange() {
+        GymClassRequest request = new GymClassRequest("Yoga", LocalDate.now(), LocalDate.now().minusDays(1), LocalTime.of(1,10),  10, 34);
+
+        assertThrows(InvalidDateRangeException.class, () -> gymClassService.createGymClass(request));
+    }
+
+    @Test
+    void shouldReturnAllGymClasses() {
+        GymClassRequest request1 = new GymClassRequest("Yoga", LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(1,10), 20, 1);
+        GymClassRequest request2 = new GymClassRequest("Pilates", LocalDate.now(), LocalDate.now().plusDays(2), LocalTime.of(1,10), 15, 1);
+
+        gymClassService.createGymClass(request1);
+        gymClassService.createGymClass(request2);
+
+        List<GymClass> gymClasses = gymClassService.getGymClasses();
+
+        assertEquals(2, gymClasses.size());
+    }
 }

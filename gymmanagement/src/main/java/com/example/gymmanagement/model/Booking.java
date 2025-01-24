@@ -8,6 +8,12 @@ public class Booking {
     private String className;
     private LocalDate participationDate;
 
+    public Booking(String memberName, String className, LocalDate participationDate) {
+        this.memberName = memberName;
+        this.className = className;
+        this.participationDate = participationDate;
+    }
+
     public String getMemberName() {
         return memberName;
     }
@@ -30,5 +36,14 @@ public class Booking {
 
     public void setParticipationDate(LocalDate participationDate) {
         this.participationDate = participationDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+                "memberName='" + memberName + '\'' +
+                ", className='" + className + '\'' +
+                ", participationDate=" + participationDate +
+                '}';
     }
 }

@@ -1,67 +1,93 @@
 package com.example.gymmanagement.service;
 
 import com.example.gymmanagement.dto.BookingRequest;
+import com.example.gymmanagement.dto.BookingSearchRequest;
+import com.example.gymmanagement.exception.GymClassFullyBookedException;
+import com.example.gymmanagement.exception.GymClassNotFoundException;
+import com.example.gymmanagement.model.Booking;
 import com.example.gymmanagement.model.GymClass;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class BookingServiceTest {
-    @Test
-    void testCreateBooking_Success() {
-        BookingService bookingService = new BookingService();
+class BookingServiceTest {
 
-        GymClass gymClass = new GymClass();
-        gymClass.setName("Yoga");
-        gymClass.setStartDate(LocalDate.of(2025, 1, 1));
-        gymClass.setEndDate(LocalDate.of(2025, 1, 10));
-        gymClass.setDuration(60);
-        gymClass.setCapacity(10);
-        gymClass.setStartTime(null);
+    private BookingService bookingService;
+    private List<GymClass> gymClasses;
 
-        List<GymClass> classes = List.of(gymClass);
+    @BeforeEach
+    void setUp() {
+        bookingService = new BookingService();
+        gymClasses = new ArrayList<>();
 
-        BookingRequest request = new BookingRequest();
-        request.setMemberName("John Doe");
-        request.setClassName("Yoga");
-        request.setParticipationDate(LocalDate.of(2025, 1, 2));
-        bookingService.createBooking(request, classes);
-
-        assertEquals(1, bookingService.getBookingList().size());
+        GymClass yoga = new GymClass("Yoga", LocalDate.now(), LocalDate.now().plusDays(1), LocalTime.of(1,0), 2, 10);
+        gymClasses.add(yoga);
     }
 
     @Test
-    void testCreateBooking_ClassFull() {
-        BookingService bookingService = new BookingService();
+    void shouldCreateBookingSuccessfully() {
+        BookingRequest request = new BookingRequest("John Doe", "Yoga", LocalDate.now());
 
-        GymClass gymClass = new GymClass();
-        gymClass.setName("Yoga");
-        gymClass.setStartDate(LocalDate.of(2025, 1, 1));
-        gymClass.setEndDate(LocalDate.of(2025, 1, 10));
-        gymClass.setDuration(60);
-        gymClass.setCapacity(1);
-        gymClass.setStartTime(null);
+        bookingService.createBooking(request, gymClasses);
+        List<Booking> bookings = bookingService.getBookingList();
 
-        List<GymClass> classes = List.of(gymClass);
+        assertEquals(1, bookings.size());
+        assertEquals("John Doe", bookings.get(0).getMemberName());
+    }
 
-        BookingRequest request1 = new BookingRequest();
-        request1.setMemberName("John Doe");
-        request1.setClassName("Yoga");
-        request1.setParticipationDate(LocalDate.of(2025, 1, 2));
+    @Test
+    void shouldThrowExceptionForClassNotFound() {
+        BookingRequest request = new BookingRequest("John Doe", "Pilates", LocalDate.now());
 
-        BookingRequest request2 = new BookingRequest();
-        request2.setMemberName("John Doe");
-        request2.setClassName("Yoga");
-        request2.setParticipationDate(LocalDate.of(2025, 1, 2));
+        assertThrows(GymClassNotFoundException.class, () -> bookingService.createBooking(request, gymClasses));
+    }
 
-        bookingService.createBooking(request1, classes);
+    @Test
+    void shouldThrowExceptionForFullyBookedClass() {
+        BookingRequest request1 = new BookingRequest("Member1", "Yoga", LocalDate.now());
+        BookingRequest request2 = new BookingRequest("Member2", "Yoga", LocalDate.now());
+        BookingRequest request3 = new BookingRequest("Member3", "Yoga", LocalDate.now());
+        BookingRequest request4 = new BookingRequest("Member4", "Yoga", LocalDate.now());
+        BookingRequest request5 = new BookingRequest("Member5", "Yoga", LocalDate.now());
+        BookingRequest request6 = new BookingRequest("Member6", "Yoga", LocalDate.now());
+        BookingRequest request7 = new BookingRequest("Member7", "Yoga", LocalDate.now());
+        BookingRequest request8 = new BookingRequest("Member8", "Yoga", LocalDate.now());
+        BookingRequest request9 = new BookingRequest("Member9", "Yoga", LocalDate.now());
+        BookingRequest request10 = new BookingRequest("Member10", "Yoga", LocalDate.now());
+        BookingRequest request11 = new BookingRequest("Member11", "Yoga", LocalDate.now());
+        System.out.println("gymCLasses: "+gymClasses);
+        bookingService.createBooking(request1, gymClasses);
+        bookingService.createBooking(request2, gymClasses);
+        bookingService.createBooking(request3, gymClasses);
+        bookingService.createBooking(request4, gymClasses);
+        bookingService.createBooking(request5, gymClasses);
+        bookingService.createBooking(request6, gymClasses);
+        bookingService.createBooking(request7, gymClasses);
+        bookingService.createBooking(request8, gymClasses);
+        bookingService.createBooking(request9, gymClasses);
+        bookingService.createBooking(request10, gymClasses);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> bookingService.createBooking(request2, classes));
-        assertEquals("Gym class is fully booked.", exception.getMessage());
+        assertThrows(GymClassFullyBookedException.class, () -> bookingService.createBooking(request11, gymClasses));
+    }
+
+    @Test
+    void shouldSearchBookingsSuccessfully() {
+        BookingRequest request1 = new BookingRequest("John Doe", "Yoga", LocalDate.now());
+        BookingRequest request2 = new BookingRequest("Jane Doe", "Yoga", LocalDate.now());
+
+        bookingService.createBooking(request1, gymClasses);
+        bookingService.createBooking(request2, gymClasses);
+
+        BookingSearchRequest searchRequest = new BookingSearchRequest("John Doe", null, null);
+        List<Booking> searchResults = bookingService.searchBookings(searchRequest);
+
+        assertEquals(1, searchResults.size());
+        assertEquals("John Doe", searchResults.get(0).getMemberName());
     }
 }

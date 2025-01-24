@@ -8,6 +8,7 @@ class GymmanagementApplicationTests {
 
 	@Test
 	void contextLoads() {
+		// test cases
 	}
 
 }

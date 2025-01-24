@@ -12,6 +12,15 @@ public class GymClass {
     private int duration;
     private int capacity;
 
+    public GymClass(String name, LocalDate startDate, LocalDate endDate, LocalTime startTime, int duration, int capacity) {
+        this.name = name;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.startTime = startTime;
+        this.duration = duration;
+        this.capacity = capacity;
+    }
+
     public String getName() {
         return name;
     }
@@ -58,5 +67,17 @@ public class GymClass {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    @Override
+    public String toString() {
+        return "GymClass{" +
+                "name='" + name + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", startTime=" + startTime +
+                ", duration=" + duration +
+                ", capacity=" + capacity +
+                '}';
     }
 }

@@ -9,6 +9,12 @@ public class BookingSearchRequest {
     private LocalDate startDate;
     private LocalDate endDate;
 
+    public BookingSearchRequest(String memberName, LocalDate startDate, LocalDate endDate) {
+        this.memberName = memberName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     public String getMemberName() {
         return memberName;
     }
@@ -31,5 +37,14 @@ public class BookingSearchRequest {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    @Override
+    public String toString() {
+        return "BookingSearchRequest{" +
+                "memberName='" + memberName + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                '}';
     }
 }

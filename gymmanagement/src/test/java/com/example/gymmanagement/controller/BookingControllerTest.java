@@ -50,37 +50,25 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testSearchBookings_ByMember() throws Exception {
-        Booking booking1 = new Booking();
-        booking1.setMemberName("John Doe");
-        booking1.setClassName("Yoga");
-        booking1.setParticipationDate(LocalDate.of(2025, 1, 5));
-
+    void testSearchBookingsByMember() throws Exception {
+        Booking booking1 = new Booking("John Doe", "Yoga", LocalDate.of(2025, 1, 6));
         Mockito.when(bookingService.searchBookings(Mockito.any())).thenReturn(List.of(booking1));
 
-        mockMvc.perform(get("/api/bookings?memberName=John Doe")
+        mockMvc.perform(get("/api/bookings/search?memberName=John Doe")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].memberName").value("John Doe"))
                 .andExpect(jsonPath("$[0].className").value("Yoga"))
-                .andExpect(jsonPath("$[0].participationDate").value("2025-01-05"));
+                .andExpect(jsonPath("$[0].participationDate").value("2025-01-06"));
     }
 
     @Test
-    void testSearchBookings_ByDateRange() throws Exception {
-        Booking booking1 = new Booking();
-        booking1.setMemberName("John Doe");
-        booking1.setClassName("Yoga");
-        booking1.setParticipationDate(LocalDate.of(2025, 1, 5));
-
-        Booking booking2 = new Booking();
-        booking2.setMemberName("Jane Doe");
-        booking2.setClassName("Pilates");
-        booking2.setParticipationDate(LocalDate.of(2025, 1, 6));
-
+    void testSearchBookingsByDateRange() throws Exception {
+        Booking booking1 = new Booking("John Doe","Yoga", LocalDate.of(2025, 1, 5));
+        Booking booking2 = new Booking("Jane Doe","Pilates",LocalDate.of(2025, 1, 6));
         Mockito.when(bookingService.searchBookings(Mockito.any())).thenReturn(List.of(booking1, booking2));
 
-        mockMvc.perform(get("/api/bookings?startDate=2025-01-01&endDate=2025-01-10")
+        mockMvc.perform(get("/api/bookings/search?startDate=2025-01-01&endDate=2025-01-10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].memberName").value("John Doe"))
@@ -92,15 +80,12 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testSearchBookings_ByMemberAndDateRange() throws Exception {
-        Booking booking1 = new Booking();
-        booking1.setMemberName("John Doe");
-        booking1.setClassName("Yoga");
-        booking1.setParticipationDate(LocalDate.of(2025, 1, 5));
+    void testSearchBookingsByMemberAndDateRange() throws Exception {
+        Booking booking1 = new Booking("John Doe","Yoga", LocalDate.of(2025, 1, 5));
 
         Mockito.when(bookingService.searchBookings(Mockito.any())).thenReturn(List.of(booking1));
 
-        mockMvc.perform(get("/api/bookings?memberName=John Doe&startDate=2025-01-01&endDate=2025-01-10")
+        mockMvc.perform(get("/api/bookings/search?memberName=John Doe&startDate=2025-01-01&endDate=2025-01-10")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].memberName").value("John Doe"))
